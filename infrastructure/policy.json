@@ -74,6 +74,48 @@
                             }
                         }
                     ]
+                },
+                {
+                    "allOf": [
+                        {
+                            "field": "type",
+                            "equals": "Microsoft.Compute/virtualMachineScaleSets"
+                        },
+                        {
+                            "not": {
+                                "field": "Microsoft.Compute/virtualMachineScaleSets/sku.name",
+                                "in": "[parameters('allowedVmSkus')]"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "allOf": [
+                        {
+                            "field": "type",
+                            "equals": "Microsoft.Compute/virtualMachineScaleSets"
+                        },
+                        {
+                            "not": {
+                                "field": "Microsoft.Compute/virtualMachineScaleSets/sku.tier",
+                                "in": "[parameters('allowedVmssSkuTiers')]"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "allOf": [
+                        {
+                            "field": "type",
+                            "equals": "Microsoft.Compute/virtualMachineScaleSets"
+                        },
+                        {
+                            "not": {
+                                "field": "Microsoft.Compute/virtualMachineScaleSets/sku.capacity",
+                                "in": "[parameters('allowedVmssSkuCapacities')]"
+                            }
+                        }
+                    ]
                 }
             ]
         },
@@ -95,18 +137,32 @@
                 "Microsoft.Network/publicIpAddresses",
                 "Microsoft.Network/networkInterfaces",
                 "Microsoft.Network/virtualNetworks",
-                "Microsoft.Compute/virtualMachines/extensions"
+                "Microsoft.Compute/virtualMachines/extensions",
+                "Microsoft.Network/loadBalancers",
+                "Microsoft.Compute/virtualMachineScaleSets",
+                "Microsoft.Compute/availabilitySets",
+                "Microsoft.Network/loadBalancers/inboundNatRules"
             ]
         },
         "allowedVmSkus": {
             "value": [
-                "Basic_A1",
-                "Basic_A2"
+                "Standard_A1",
+                "Standard_A1_v2"
             ]
         },
         "allowedVmExtensionTypes": {
             "value": [
                 "CustomScriptForLinux"
+            ]
+        },
+        "allowedVmssSkuTiers": {
+            "value": [
+                "Standard"
+            ]
+        },
+        "allowedVmssSkuCapacities": {
+            "value": [
+                1
             ]
         }
     }
