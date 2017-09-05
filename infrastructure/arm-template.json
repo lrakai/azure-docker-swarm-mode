@@ -193,7 +193,7 @@
         "masterVnetSubnetID": "[concat(variables('vnetID'),'/subnets/',variables('masterSubnetName'))]",
         "maxStorageAccountsPerAgent": "[div(variables('maxVMsPerPool'),variables('maxVMsPerStorageAccount'))]",
         "maxVMsPerPool": 100,
-        "maxVMsPerStorageAccount": 20,
+        "maxVMsPerStorageAccount": 100,
         "nameSuffix": "[parameters('nameSuffix')]",
         "orchestratorName": "swarmm",
         "osImageOffer": "UbuntuServer",
