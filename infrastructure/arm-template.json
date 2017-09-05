@@ -9,7 +9,7 @@
                 3,
                 4
             ],
-            "defaultValue": 2,
+            "defaultValue": 3,
             "metadata": {
                 "description": "The number of agents for the cluster.  This value can be from 1 to 4"
             },
