@@ -30,10 +30,10 @@
             "type": "string"
         },
         "agentVMSize": {
-            "defaultValue": "Basic_A1",
+            "defaultValue": "Standard_A1_v2",
             "allowedValues": [
-                "Basic_A1",
-                "Basic_A2"
+                "Standard_A1",
+                "Standard_A1_v2"
             ],
             "metadata": {
                 "description": "The size of the Virtual Machine."
@@ -80,10 +80,10 @@
             "type": "string"
         },
         "masterVMSize": {
-            "defaultValue": "Basic_A1",
+            "defaultValue": "Standard_A1_v2",
             "allowedValues": [
-                "Basic_A1",
-                "Basic_A2"
+                "Standard_A1",
+                "Standard_A1_v2"
             ],
             "metadata": {
                 "description": "The size of the Virtual Machine."
@@ -243,10 +243,10 @@
         "storageAccountPrefixesCount": "[length(variables('storageAccountPrefixes'))]",
         "virtualNetworkName": "[concat(variables('orchestratorName'), '-vnet-', variables('nameSuffix'))]",
         "vmSizesMap": {
-            "Basic_A1": {
+            "Standard_A1": {
                 "storageAccountType": "Standard_LRS"
             },
-            "Basic_A2": {
+            "Standard_A1_v2": {
                 "storageAccountType": "Standard_LRS"
             }
         },
