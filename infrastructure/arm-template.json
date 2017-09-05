@@ -59,7 +59,7 @@
             "type": "string"
         },
         "location": {
-            "defaultValue": "us west 2",
+            "defaultValue": "uswest2",
             "metadata": {
                 "description": "Sets the location for all resources in the cluster"
             },
@@ -188,7 +188,7 @@
         "masterStorageAccountName": "[concat(variables('storageAccountBaseName'), '0')]",
         "masterSubnet": "[parameters('masterSubnet')]",
         "masterSubnetName": "[concat(variables('orchestratorName'), '-masterSubnet')]",
-        "masterVMNamePrefix": "[concat(variables('orchestratorName'), '-master-', variables('nameSuffix'), '-')]",
+        "masterVMNamePrefix": "[concat('ca-lab-vm-', variables('orchestratorName'), '-master-', variables('nameSuffix'), '-')]",
         "masterVMSize": "[parameters('masterVMSize')]",
         "masterVnetSubnetID": "[concat(variables('vnetID'),'/subnets/',variables('masterSubnetName'))]",
         "maxStorageAccountsPerAgent": "[div(variables('maxVMsPerPool'),variables('maxVMsPerStorageAccount'))]",
