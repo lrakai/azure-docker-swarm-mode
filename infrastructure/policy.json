@@ -35,13 +35,6 @@
                 "description": "The list of allowed VMSS SKU tiers",
                 "displayName": "Allowed VMSS SKU tiers"
             }
-        },
-        "allowedVmssSkuCapacities": {
-            "type": "array",
-            "metadata": {
-                "description": "The list of allowed VMSS SKU capacities",
-                "displayName": "Allowed VMSS SKU capacities"
-            }
         }
     },
     "displayName": "Allowed locations, services, and VM SKUs",
@@ -116,20 +109,6 @@
                             }
                         }
                     ]
-                },
-                {
-                    "allOf": [
-                        {
-                            "field": "type",
-                            "equals": "Microsoft.Compute/virtualMachineScaleSets"
-                        },
-                        {
-                            "not": {
-                                "field": "Microsoft.Compute/virtualMachineScaleSets/sku.capacity",
-                                "in": "[parameters('allowedVmssSkuCapacities')]"
-                            }
-                        }
-                    ]
                 }
             ]
         },
@@ -172,11 +151,6 @@
         "allowedVmssSkuTiers": {
             "value": [
                 "Standard"
-            ]
-        },
-        "allowedVmssSkuCapacities": {
-            "value": [
-                1
             ]
         }
     }
