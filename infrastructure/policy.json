@@ -28,6 +28,20 @@
                 "description": "The list of allowed VM Extension types",
                 "displayName": "Allowed VM Extension types"
             }
+        },
+        "allowedVmssSkuTiers": {
+            "type": "array",
+            "metadata": {
+                "description": "The list of allowed VMSS SKU tiers",
+                "displayName": "Allowed VMSS SKU tiers"
+            }
+        },
+        "allowedVmssSkuCapacities": {
+            "type": "array",
+            "metadata": {
+                "description": "The list of allowed VMSS SKU capacities",
+                "displayName": "Allowed VMSS SKU capacities"
+            }
         }
     },
     "displayName": "Allowed locations, services, and VM SKUs",
