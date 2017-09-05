@@ -59,7 +59,7 @@
             "type": "string"
         },
         "location": {
-            "defaultValue": "uswest2",
+            "defaultValue": "[resourceGroup().location]",
             "metadata": {
                 "description": "Sets the location for all resources in the cluster"
             },
