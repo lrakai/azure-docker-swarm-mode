@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "agentCount": {
+        "workerCount": {
             "allowedValues": [
                 1,
                 2,
@@ -11,25 +11,25 @@
             ],
             "defaultValue": 3,
             "metadata": {
-                "description": "The number of agents for the cluster.  This value can be from 1 to 4"
+                "description": "The number of workers for the cluster.  This value can be from 1 to 4"
             },
             "type": "int"
         },
-        "agentEndpointDNSNamePrefix": {
+        "workerEndpointDNSNamePrefix": {
             "metadata": {
-                "description": "Sets the Domain name label for the agent pool IP Address.  The concatenation of the domain name label and the regional DNS zone make up the fully qualified domain name associated with the public IP address."
+                "description": "Sets the Domain name label for the worker pool IP Address.  The concatenation of the domain name label and the regional DNS zone make up the fully qualified domain name associated with the public IP address."
             },
             "defaultValue": "[concat('ca-lab-swarm-', uniqueString(resourceGroup().id, resourceGroup().name))]",
             "type": "string"
         },
-        "agentSubnet": {
+        "workerSubnet": {
             "defaultValue": "10.0.0.0/16",
             "metadata": {
-                "description": "Sets the subnet of agent pool 'agent'."
+                "description": "Sets the subnet of worker pool 'worker'."
             },
             "type": "string"
         },
-        "agentVMSize": {
+        "workerVMSize": {
             "defaultValue": "Standard_A1_v2",
             "allowedValues": [
                 "Standard_A1",
@@ -43,7 +43,7 @@
         "firstConsecutiveStaticIP": {
             "defaultValue": "172.16.0.5",
             "metadata": {
-                "description": "Sets the static IP of the first master"
+                "description": "Sets the static IP of the first manager"
             },
             "type": "string"
         },
@@ -65,21 +65,21 @@
             },
             "type": "string"
         },
-        "masterEndpointDNSNamePrefix": {
-            "defaultValue": "[concat('ca-lab-master-', uniqueString(resourceGroup().id, resourceGroup().name))]",
+        "managerEndpointDNSNamePrefix": {
+            "defaultValue": "[concat('ca-lab-manager-', uniqueString(resourceGroup().id, resourceGroup().name))]",
             "metadata": {
-                "description": "Sets the Domain name label for the master IP Address.  The concatenation of the domain name label and the regional DNS zone make up the fully qualified domain name associated with the public IP address."
+                "description": "Sets the Domain name label for the manager IP Address.  The concatenation of the domain name label and the regional DNS zone make up the fully qualified domain name associated with the public IP address."
             },
             "type": "string"
         },
-        "masterSubnet": {
+        "managerSubnet": {
             "defaultValue": "172.16.0.0/24",
             "metadata": {
-                "description": "Sets the subnet of the master node(s)."
+                "description": "Sets the subnet of the manager node(s)."
             },
             "type": "string"
         },
-        "masterVMSize": {
+        "managerVMSize": {
             "defaultValue": "Standard_A1_v2",
             "allowedValues": [
                 "Standard_A1",
@@ -93,7 +93,7 @@
         "nameSuffix": {
             "defaultValue": "ca957614",
             "metadata": {
-                "description": "A string hash of the master DNS name to uniquely identify the cluster."
+                "description": "A string hash of the manager DNS name to uniquely identify the cluster."
             },
             "type": "string"
         },
@@ -108,30 +108,30 @@
     "variables": {
         "adminUsername": "[parameters('linuxAdminUsername')]",
         "adminPassword": "[parameters('linuxAdminPassword')]",
-        "agentAccountName": "[concat(variables('storageAccountBaseName'), 'agnt0')]",
-        "agentCount": "[parameters('agentCount')]",
-        "agentCustomScript": "[concat('/usr/bin/nohup /bin/bash -c \"/bin/bash /opt/azure/containers/',variables('configureClusterScriptFile'), ' ',variables('clusterInstallParameters'),' >> /var/log/azure/cluster-bootstrap.log 2>&1 &\" &')]",
-        "agentEndpointDNSNamePrefix": "[tolower(parameters('agentEndpointDNSNamePrefix'))]",
-        "agentIPAddressName": "[concat(variables('orchestratorName'), '-agent-ip-', variables('agentEndpointDNSNamePrefix'), '-', variables('nameSuffix'))]",
-        "agentIndex": 0,
-        "agentLbBackendPoolName": "[concat(variables('orchestratorName'), '-agent-', variables('nameSuffix'))]",
-        "agentLbID": "[resourceId('Microsoft.Network/loadBalancers',variables('agentLbName'))]",
-        "agentLbIPConfigID": "[concat(variables('agentLbID'),'/frontendIPConfigurations/', variables('agentLbIPConfigName'))]",
-        "agentLbIPConfigName": "[concat(variables('orchestratorName'), '-agent-', variables('nameSuffix'))]",
-        "agentLbName": "[concat(variables('orchestratorName'), '-agent-', variables('nameSuffix'))]",
-        "agentMaxVMs": 4,
-        "agentRunCmd": "[concat('runcmd:\n -  [ /bin/bash, /opt/azure/containers/install-cluster.sh ]\n\n')]",
-        "agentRunCmdFile": "[concat(' -  content: |\n        #!/bin/bash\n        ','sudo mkdir -p /var/log/azure\n        ',variables('agentCustomScript'),'\n    path: /opt/azure/containers/install-cluster.sh\n    permissions: \"0744\"\n')]",
-        "agentStorageAccountOffset": "[mul(variables('maxStorageAccountsPerAgent'),0)]",
-        "agentStorageAccountsCount": "[variables('maxStorageAccountsPerAgent')]",
-        "agentSubnet": "[parameters('agentSubnet')]",
-        "agentSubnetName": "[concat(variables('orchestratorName'), '-agentsubnet')]",
-        "agentVMNamePrefix": "[concat(variables('orchestratorName'), '-agent-', variables('nameSuffix'))]",
-        "agentVMSize": "[parameters('agentVMSize')]",
-        "agentVnetSubnetID": "[concat(variables('vnetID'),'/subnets/',variables('agentSubnetName'))]",
+        "workerAccountName": "[concat(variables('storageAccountBaseName'), 'agnt0')]",
+        "workerCount": "[parameters('workerCount')]",
+        "workerCustomScript": "[concat('/usr/bin/nohup /bin/bash -c \"/bin/bash /opt/azure/containers/',variables('configureClusterScriptFile'), ' ',variables('clusterInstallParameters'),' >> /var/log/azure/cluster-bootstrap.log 2>&1 &\" &')]",
+        "workerEndpointDNSNamePrefix": "[tolower(parameters('workerEndpointDNSNamePrefix'))]",
+        "workerIPAddressName": "[concat(variables('orchestratorName'), '-worker-ip-', variables('workerEndpointDNSNamePrefix'), '-', variables('nameSuffix'))]",
+        "workerIndex": 0,
+        "workerLbBackendPoolName": "[concat(variables('orchestratorName'), '-worker-', variables('nameSuffix'))]",
+        "workerLbID": "[resourceId('Microsoft.Network/loadBalancers',variables('workerLbName'))]",
+        "workerLbIPConfigID": "[concat(variables('workerLbID'),'/frontendIPConfigurations/', variables('workerLbIPConfigName'))]",
+        "workerLbIPConfigName": "[concat(variables('orchestratorName'), '-worker-', variables('nameSuffix'))]",
+        "workerLbName": "[concat(variables('orchestratorName'), '-worker-', variables('nameSuffix'))]",
+        "workerMaxVMs": 4,
+        "workerRunCmd": "[concat('runcmd:\n -  [ /bin/bash, /opt/azure/containers/install-cluster.sh ]\n\n')]",
+        "workerRunCmdFile": "[concat(' -  content: |\n        #!/bin/bash\n        ','sudo mkdir -p /var/log/azure\n        ',variables('workerCustomScript'),'\n    path: /opt/azure/containers/install-cluster.sh\n    permissions: \"0744\"\n')]",
+        "workerStorageAccountOffset": "[mul(variables('maxStorageAccountsPerAgent'),0)]",
+        "workerStorageAccountsCount": "[variables('maxStorageAccountsPerAgent')]",
+        "workerSubnet": "[parameters('workerSubnet')]",
+        "workerSubnetName": "[concat(variables('orchestratorName'), '-workersubnet')]",
+        "workerVMNamePrefix": "[concat(variables('orchestratorName'), '-worker-', variables('nameSuffix'))]",
+        "workerVMSize": "[parameters('workerVMSize')]",
+        "workerVnetSubnetID": "[concat(variables('vnetID'),'/subnets/',variables('workerSubnetName'))]",
         "apiVersionDefault": "2016-03-30",
         "apiVersionStorage": "2015-06-15",
-        "clusterInstallParameters": "[concat(variables('masterCount'), ' ',variables('masterVMNamePrefix'), ' ',variables('masterFirstAddrOctet4'), ' ',variables('adminUsername'),' ',variables('postInstallScriptURI'),' ',variables('masterFirstAddrPrefix'))]",
+        "clusterInstallParameters": "[concat(variables('managerCount'), ' ',variables('managerVMNamePrefix'), ' ',variables('managerFirstAddrOctet4'), ' ',variables('adminUsername'),' ',variables('postInstallScriptURI'),' ',variables('managerFirstAddrPrefix'))]",
         "configureClusterScriptFile": "configure-swarmmode-cluster.sh",
         "dataStorageAccountPrefixSeed": 97,
         "location": "[variables('locations')[mod(add(2,length(parameters('location'))),add(1,length(parameters('location'))))]]",
@@ -139,58 +139,58 @@
             "[resourceGroup().location]",
             "[parameters('location')]"
         ],
-        "masterAvailabilitySet": "[concat(variables('orchestratorName'), '-master-availabilitySet-', variables('nameSuffix'))]",
-        "masterCount": 1,
-        "masterCustomScript": "[concat('/bin/bash -c \"/bin/bash /opt/azure/containers/',variables('configureClusterScriptFile'), ' ',variables('clusterInstallParameters'),' >> /var/log/azure/cluster-bootstrap.log 2>&1\"')]",
-        "masterEndpointDNSNamePrefix": "[tolower(parameters('masterEndpointDNSNamePrefix'))]",
-        "masterFirstAddrOctet4": "[variables('masterFirstAddrOctets')[3]]",
-        "masterFirstAddrOctets": "[split(parameters('firstConsecutiveStaticIP'),'.')]",
-        "masterFirstAddrPrefix": "[concat(variables('masterFirstAddrOctets')[0],'.',variables('masterFirstAddrOctets')[1],'.',variables('masterFirstAddrOctets')[2],'.')]",
-        "masterLbBackendPoolName": "[concat(variables('orchestratorName'), '-master-pool-', variables('nameSuffix'))]",
-        "masterLbID": "[resourceId('Microsoft.Network/loadBalancers',variables('masterLbName'))]",
-        "masterLbIPConfigID": "[concat(variables('masterLbID'),'/frontendIPConfigurations/', variables('masterLbIPConfigName'))]",
-        "masterLbIPConfigName": "[concat(variables('orchestratorName'), '-master-lbFrontEnd-', variables('nameSuffix'))]",
-        "masterLbInboundNatRules": [
+        "managerAvailabilitySet": "[concat(variables('orchestratorName'), '-manager-availabilitySet-', variables('nameSuffix'))]",
+        "managerCount": 1,
+        "managerCustomScript": "[concat('/bin/bash -c \"/bin/bash /opt/azure/containers/',variables('configureClusterScriptFile'), ' ',variables('clusterInstallParameters'),' >> /var/log/azure/cluster-bootstrap.log 2>&1\"')]",
+        "managerEndpointDNSNamePrefix": "[tolower(parameters('managerEndpointDNSNamePrefix'))]",
+        "managerFirstAddrOctet4": "[variables('managerFirstAddrOctets')[3]]",
+        "managerFirstAddrOctets": "[split(parameters('firstConsecutiveStaticIP'),'.')]",
+        "managerFirstAddrPrefix": "[concat(variables('managerFirstAddrOctets')[0],'.',variables('managerFirstAddrOctets')[1],'.',variables('managerFirstAddrOctets')[2],'.')]",
+        "managerLbBackendPoolName": "[concat(variables('orchestratorName'), '-manager-pool-', variables('nameSuffix'))]",
+        "managerLbID": "[resourceId('Microsoft.Network/loadBalancers',variables('managerLbName'))]",
+        "managerLbIPConfigID": "[concat(variables('managerLbID'),'/frontendIPConfigurations/', variables('managerLbIPConfigName'))]",
+        "managerLbIPConfigName": "[concat(variables('orchestratorName'), '-manager-lbFrontEnd-', variables('nameSuffix'))]",
+        "managerLbInboundNatRules": [
             [
                 {
-                    "id": "[concat(variables('masterSshInboundNatRuleIdPrefix'),'0')]"
+                    "id": "[concat(variables('managerSshInboundNatRuleIdPrefix'),'0')]"
                 },
                 {
-                    "id": "[concat(variables('masterSshPort22InboundNatRuleIdPrefix'),'0')]"
+                    "id": "[concat(variables('managerSshPort22InboundNatRuleIdPrefix'),'0')]"
                 }
             ],
             [
                 {
-                    "id": "[concat(variables('masterSshInboundNatRuleIdPrefix'),'1')]"
+                    "id": "[concat(variables('managerSshInboundNatRuleIdPrefix'),'1')]"
                 }
             ],
             [
                 {
-                    "id": "[concat(variables('masterSshInboundNatRuleIdPrefix'),'2')]"
+                    "id": "[concat(variables('managerSshInboundNatRuleIdPrefix'),'2')]"
                 }
             ],
             [
                 {
-                    "id": "[concat(variables('masterSshInboundNatRuleIdPrefix'),'3')]"
+                    "id": "[concat(variables('managerSshInboundNatRuleIdPrefix'),'3')]"
                 }
             ],
             [
                 {
-                    "id": "[concat(variables('masterSshInboundNatRuleIdPrefix'),'4')]"
+                    "id": "[concat(variables('managerSshInboundNatRuleIdPrefix'),'4')]"
                 }
             ]
         ],
-        "masterLbName": "[concat(variables('orchestratorName'), '-master-lb-', variables('nameSuffix'))]",
-        "masterPublicIPAddressName": "[concat(variables('orchestratorName'), '-master-ip-', variables('masterEndpointDNSNamePrefix'), '-', variables('nameSuffix'))]",
-        "masterSshInboundNatRuleIdPrefix": "[concat(variables('masterLbID'),'/inboundNatRules/SSH-',variables('masterVMNamePrefix'))]",
-        "masterSshPort22InboundNatRuleIdPrefix": "[concat(variables('masterLbID'),'/inboundNatRules/SSHPort22-',variables('masterVMNamePrefix'))]",
-        "masterSshPort22InboundNatRuleNamePrefix": "[concat(variables('masterLbName'),'/SSHPort22-',variables('masterVMNamePrefix'))]",
-        "masterStorageAccountName": "[concat(variables('storageAccountBaseName'), '0')]",
-        "masterSubnet": "[parameters('masterSubnet')]",
-        "masterSubnetName": "[concat(variables('orchestratorName'), '-masterSubnet')]",
-        "masterVMNamePrefix": "[concat('ca-lab-vm-', variables('orchestratorName'), '-master-', variables('nameSuffix'), '-')]",
-        "masterVMSize": "[parameters('masterVMSize')]",
-        "masterVnetSubnetID": "[concat(variables('vnetID'),'/subnets/',variables('masterSubnetName'))]",
+        "managerLbName": "[concat(variables('orchestratorName'), '-manager-lb-', variables('nameSuffix'))]",
+        "managerPublicIPAddressName": "[concat(variables('orchestratorName'), '-manager-ip-', variables('managerEndpointDNSNamePrefix'), '-', variables('nameSuffix'))]",
+        "managerSshInboundNatRuleIdPrefix": "[concat(variables('managerLbID'),'/inboundNatRules/SSH-',variables('managerVMNamePrefix'))]",
+        "managerSshPort22InboundNatRuleIdPrefix": "[concat(variables('managerLbID'),'/inboundNatRules/SSHPort22-',variables('managerVMNamePrefix'))]",
+        "managerSshPort22InboundNatRuleNamePrefix": "[concat(variables('managerLbName'),'/SSHPort22-',variables('managerVMNamePrefix'))]",
+        "managerStorageAccountName": "[concat(variables('storageAccountBaseName'), '0')]",
+        "managerSubnet": "[parameters('managerSubnet')]",
+        "managerSubnetName": "[concat(variables('orchestratorName'), '-managerSubnet')]",
+        "managerVMNamePrefix": "[concat('ca-lab-vm-', variables('orchestratorName'), '-manager-', variables('nameSuffix'), '-')]",
+        "managerVMSize": "[parameters('managerVMSize')]",
+        "managerVnetSubnetID": "[concat(variables('vnetID'),'/subnets/',variables('managerSubnetName'))]",
         "maxStorageAccountsPerAgent": "[div(variables('maxVMsPerPool'),variables('maxVMsPerStorageAccount'))]",
         "maxVMsPerPool": 100,
         "maxVMsPerStorageAccount": 100,
@@ -201,7 +201,7 @@
         "osImageSKU": "16.04-LTS",
         "osImageVersion": "16.04.201703070",
         "postInstallScriptURI": "disabled",
-        "storageAccountBaseName": "[uniqueString(concat(variables('masterEndpointDNSNamePrefix'),variables('location')))]",
+        "storageAccountBaseName": "[uniqueString(concat(variables('managerEndpointDNSNamePrefix'),variables('location')))]",
         "storageAccountPrefixes": [
             "0",
             "6",
@@ -257,26 +257,26 @@
         {
             "apiVersion": "[variables('apiVersionStorage')]",
             "copy": {
-                "count": "[variables('agentStorageAccountsCount')]",
+                "count": "[variables('workerStorageAccountsCount')]",
                 "name": "vmLoopNode"
             },
             "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses/', variables('masterPublicIPAddressName'))]"
+                "[concat('Microsoft.Network/publicIPAddresses/', variables('managerPublicIPAddressName'))]"
             ],
             "location": "[variables('location')]",
-            "name": "[concat(variables('storageAccountPrefixes')[mod(add(copyIndex(),variables('agentStorageAccountOffset')),variables('storageAccountPrefixesCount'))],variables('storageAccountPrefixes')[div(add(copyIndex(),variables('agentStorageAccountOffset')),variables('storageAccountPrefixesCount'))],variables('agentAccountName'))]",
+            "name": "[concat(variables('storageAccountPrefixes')[mod(add(copyIndex(),variables('workerStorageAccountOffset')),variables('storageAccountPrefixesCount'))],variables('storageAccountPrefixes')[div(add(copyIndex(),variables('workerStorageAccountOffset')),variables('storageAccountPrefixesCount'))],variables('workerAccountName'))]",
             "properties": {
-                "accountType": "[variables('vmSizesMap')[variables('agentVMSize')].storageAccountType]"
+                "accountType": "[variables('vmSizesMap')[variables('workerVMSize')].storageAccountType]"
             },
             "type": "Microsoft.Storage/storageAccounts"
         },
         {
             "apiVersion": "[variables('apiVersionDefault')]",
             "location": "[variables('location')]",
-            "name": "[variables('agentIPAddressName')]",
+            "name": "[variables('workerIPAddressName')]",
             "properties": {
                 "dnsSettings": {
-                    "domainNameLabel": "[variables('agentEndpointDNSNamePrefix')]"
+                    "domainNameLabel": "[variables('workerEndpointDNSNamePrefix')]"
                 },
                 "publicIPAllocationMethod": "Dynamic"
             },
@@ -285,22 +285,22 @@
         {
             "apiVersion": "[variables('apiVersionDefault')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses/', variables('agentIPAddressName'))]"
+                "[concat('Microsoft.Network/publicIPAddresses/', variables('workerIPAddressName'))]"
             ],
             "location": "[variables('location')]",
-            "name": "[variables('agentLbName')]",
+            "name": "[variables('workerLbName')]",
             "properties": {
                 "backendAddressPools": [
                     {
-                        "name": "[variables('agentLbBackendPoolName')]"
+                        "name": "[variables('workerLbBackendPoolName')]"
                     }
                 ],
                 "frontendIPConfigurations": [
                     {
-                        "name": "[variables('agentLbIPConfigName')]",
+                        "name": "[variables('workerLbIPConfigName')]",
                         "properties": {
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('agentIPAddressName'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('workerIPAddressName'))]"
                             }
                         }
                     }
@@ -311,18 +311,18 @@
                         "name": "LBRule80",
                         "properties": {
                             "backendAddressPool": {
-                                "id": "[concat(variables('agentLbID'), '/backendAddressPools/', variables('agentLbBackendPoolName'))]"
+                                "id": "[concat(variables('workerLbID'), '/backendAddressPools/', variables('workerLbBackendPoolName'))]"
                             },
                             "backendPort": 80,
                             "enableFloatingIP": false,
                             "frontendIPConfiguration": {
-                                "id": "[variables('agentLbIPConfigID')]"
+                                "id": "[variables('workerLbIPConfigID')]"
                             },
                             "frontendPort": 80,
                             "idleTimeoutInMinutes": 5,
                             "loadDistribution": "Default",
                             "probe": {
-                                "id": "[concat(variables('agentLbID'),'/probes/tcp80Probe')]"
+                                "id": "[concat(variables('workerLbID'),'/probes/tcp80Probe')]"
                             },
                             "protocol": "tcp"
                         }
@@ -331,18 +331,18 @@
                         "name": "LBRule443",
                         "properties": {
                             "backendAddressPool": {
-                                "id": "[concat(variables('agentLbID'), '/backendAddressPools/', variables('agentLbBackendPoolName'))]"
+                                "id": "[concat(variables('workerLbID'), '/backendAddressPools/', variables('workerLbBackendPoolName'))]"
                             },
                             "backendPort": 443,
                             "enableFloatingIP": false,
                             "frontendIPConfiguration": {
-                                "id": "[variables('agentLbIPConfigID')]"
+                                "id": "[variables('workerLbIPConfigID')]"
                             },
                             "frontendPort": 443,
                             "idleTimeoutInMinutes": 5,
                             "loadDistribution": "Default",
                             "probe": {
-                                "id": "[concat(variables('agentLbID'),'/probes/tcp443Probe')]"
+                                "id": "[concat(variables('workerLbID'),'/probes/tcp443Probe')]"
                             },
                             "protocol": "tcp"
                         }
@@ -351,18 +351,18 @@
                         "name": "LBRule8080",
                         "properties": {
                             "backendAddressPool": {
-                                "id": "[concat(variables('agentLbID'), '/backendAddressPools/', variables('agentLbBackendPoolName'))]"
+                                "id": "[concat(variables('workerLbID'), '/backendAddressPools/', variables('workerLbBackendPoolName'))]"
                             },
                             "backendPort": 8080,
                             "enableFloatingIP": false,
                             "frontendIPConfiguration": {
-                                "id": "[variables('agentLbIPConfigID')]"
+                                "id": "[variables('workerLbIPConfigID')]"
                             },
                             "frontendPort": 8080,
                             "idleTimeoutInMinutes": 5,
                             "loadDistribution": "Default",
                             "probe": {
-                                "id": "[concat(variables('agentLbID'),'/probes/tcp8080Probe')]"
+                                "id": "[concat(variables('workerLbID'),'/probes/tcp8080Probe')]"
                             },
                             "protocol": "tcp"
                         }
@@ -403,13 +403,13 @@
         {
             "apiVersion": "[variables('apiVersionDefault')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses/', variables('masterPublicIPAddressName'))]",
-                "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountPrefixes')[mod(add(0,variables('agentStorageAccountOffset')),variables('storageAccountPrefixesCount'))],variables('storageAccountPrefixes')[div(add(0,variables('agentStorageAccountOffset')),variables('storageAccountPrefixesCount'))],variables('agentAccountName'))]",
+                "[concat('Microsoft.Network/publicIPAddresses/', variables('managerPublicIPAddressName'))]",
+                "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountPrefixes')[mod(add(0,variables('workerStorageAccountOffset')),variables('storageAccountPrefixesCount'))],variables('storageAccountPrefixes')[div(add(0,variables('workerStorageAccountOffset')),variables('storageAccountPrefixesCount'))],variables('workerAccountName'))]",
                 "[variables('vnetID')]",
-                "[variables('agentLbID')]"
+                "[variables('workerLbID')]"
             ],
             "location": "[variables('location')]",
-            "name": "[concat(variables('agentVMNamePrefix'), '-vmss')]",
+            "name": "[concat(variables('workerVMNamePrefix'), '-vmss')]",
             "properties": {
                 "upgradePolicy": {
                     "mode": "Automatic"
@@ -426,11 +426,11 @@
                                             "properties": {
                                                 "loadBalancerBackendAddressPools": [
                                                     {
-                                                        "id": "[concat(variables('agentLbID'), '/backendAddressPools/', variables('agentLbBackendPoolName'))]"
+                                                        "id": "[concat(variables('workerLbID'), '/backendAddressPools/', variables('workerLbBackendPoolName'))]"
                                                     }
                                                 ],
                                                 "subnet": {
-                                                    "id": "[variables('agentVnetSubnetID')]"
+                                                    "id": "[variables('workerVnetSubnetID')]"
                                                 }
                                             }
                                         }
@@ -443,8 +443,8 @@
                     "osProfile": {
                         "adminUsername": "[variables('adminUsername')]",
                         "adminPassword": "[variables('adminPassword')]",
-                        "computerNamePrefix": "[variables('agentVMNamePrefix')]",
-                        "customData": "[base64(concat('#cloud-config\n\nwrite_files:\n -  encoding: gzip\n    content: !!binary |\n        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\n    path: /opt/azure/containers/configure-swarmmode-cluster.sh\n    permissions: \"0744\"\n\n',variables('agentRunCmdFile'),variables('agentRunCmd')))]",
+                        "computerNamePrefix": "[variables('workerVMNamePrefix')]",
+                        "customData": "[base64(concat('#cloud-config\n\nwrite_files:\n -  encoding: gzip\n    content: !!binary |\n        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\n    path: /opt/azure/containers/configure-swarmmode-cluster.sh\n    permissions: \"0744\"\n\n',variables('workerRunCmdFile'),variables('workerRunCmd')))]",
                         "linuxConfiguration": {
                             "disablePasswordAuthentication": false
                         }
@@ -461,31 +461,31 @@
                             "createOption": "FromImage",
                             "name": "vmssosdisk",
                             "vhdContainers": [
-                                "[concat(reference(concat('Microsoft.Storage/storageAccounts/',variables('storageAccountPrefixes')[mod(add(0,variables('agentStorageAccountOffset')),variables('storageAccountPrefixesCount'))],variables('storageAccountPrefixes')[div(add(0,variables('agentStorageAccountOffset')),variables('storageAccountPrefixesCount'))],variables('agentAccountName')), variables('apiVersionStorage') ).primaryEndpoints.blob, 'osdisk')]"
+                                "[concat(reference(concat('Microsoft.Storage/storageAccounts/',variables('storageAccountPrefixes')[mod(add(0,variables('workerStorageAccountOffset')),variables('storageAccountPrefixesCount'))],variables('storageAccountPrefixes')[div(add(0,variables('workerStorageAccountOffset')),variables('storageAccountPrefixesCount'))],variables('workerAccountName')), variables('apiVersionStorage') ).primaryEndpoints.blob, 'osdisk')]"
                             ]
                         }
                     }
                 }
             },
             "sku": {
-                "capacity": "[variables('agentCount')]",
-                "name": "[variables('agentVMSize')]",
+                "capacity": "[variables('workerCount')]",
+                "name": "[variables('workerVMSize')]",
                 "tier": "Standard"
             },
             "tags": {
-                "creationSource": "[concat('acsengine-', variables('agentVMNamePrefix'), '-vmss')]"
+                "creationSource": "[concat('acsengine-', variables('workerVMNamePrefix'), '-vmss')]"
             },
             "type": "Microsoft.Compute/virtualMachineScaleSets"
         },
         {
             "apiVersion": "[variables('apiVersionStorage')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses/', variables('masterPublicIPAddressName'))]"
+                "[concat('Microsoft.Network/publicIPAddresses/', variables('managerPublicIPAddressName'))]"
             ],
             "location": "[variables('location')]",
-            "name": "[variables('masterStorageAccountName')]",
+            "name": "[variables('managerStorageAccountName')]",
             "properties": {
-                "accountType": "[variables('vmSizesMap')[variables('masterVMSize')].storageAccountType]"
+                "accountType": "[variables('vmSizesMap')[variables('managerVMSize')].storageAccountType]"
             },
             "type": "Microsoft.Storage/storageAccounts"
         },
@@ -496,21 +496,21 @@
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "[variables('masterSubnet')]",
-                        "[variables('agentSubnet')]"
+                        "[variables('managerSubnet')]",
+                        "[variables('workerSubnet')]"
                     ]
                 },
                 "subnets": [
                     {
-                        "name": "[variables('masterSubnetName')]",
+                        "name": "[variables('managerSubnetName')]",
                         "properties": {
-                            "addressPrefix": "[variables('masterSubnet')]"
+                            "addressPrefix": "[variables('managerSubnet')]"
                         }
                     },
                     {
-                        "name": "[variables('agentSubnetName')]",
+                        "name": "[variables('workerSubnetName')]",
                         "properties": {
-                            "addressPrefix": "[variables('agentSubnet')]"
+                            "addressPrefix": "[variables('workerSubnet')]"
                         }
                     }
                 ]
@@ -520,17 +520,17 @@
         {
             "apiVersion": "[variables('apiVersionDefault')]",
             "location": "[variables('location')]",
-            "name": "[variables('masterAvailabilitySet')]",
+            "name": "[variables('managerAvailabilitySet')]",
             "properties": {},
             "type": "Microsoft.Compute/availabilitySets"
         },
         {
             "apiVersion": "[variables('apiVersionDefault')]",
             "location": "[variables('location')]",
-            "name": "[variables('masterPublicIPAddressName')]",
+            "name": "[variables('managerPublicIPAddressName')]",
             "properties": {
                 "dnsSettings": {
-                    "domainNameLabel": "[variables('masterEndpointDNSNamePrefix')]"
+                    "domainNameLabel": "[variables('managerEndpointDNSNamePrefix')]"
                 },
                 "publicIPAllocationMethod": "Dynamic"
             },
@@ -539,22 +539,22 @@
         {
             "apiVersion": "[variables('apiVersionDefault')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses/', variables('masterPublicIPAddressName'))]"
+                "[concat('Microsoft.Network/publicIPAddresses/', variables('managerPublicIPAddressName'))]"
             ],
             "location": "[variables('location')]",
-            "name": "[variables('masterLbName')]",
+            "name": "[variables('managerLbName')]",
             "properties": {
                 "backendAddressPools": [
                     {
-                        "name": "[variables('masterLbBackendPoolName')]"
+                        "name": "[variables('managerLbBackendPoolName')]"
                     }
                 ],
                 "frontendIPConfigurations": [
                     {
-                        "name": "[variables('masterLbIPConfigName')]",
+                        "name": "[variables('managerLbIPConfigName')]",
                         "properties": {
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('masterPublicIPAddressName'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('managerPublicIPAddressName'))]"
                             }
                         }
                     }
@@ -565,19 +565,19 @@
         {
             "apiVersion": "[variables('apiVersionDefault')]",
             "copy": {
-                "count": "[variables('masterCount')]",
-                "name": "masterLbLoopNode"
+                "count": "[variables('managerCount')]",
+                "name": "managerLbLoopNode"
             },
             "dependsOn": [
-                "[variables('masterLbID')]"
+                "[variables('managerLbID')]"
             ],
             "location": "[variables('location')]",
-            "name": "[concat(variables('masterLbName'), '/', 'SSH-', variables('masterVMNamePrefix'), copyIndex())]",
+            "name": "[concat(variables('managerLbName'), '/', 'SSH-', variables('managerVMNamePrefix'), copyIndex())]",
             "properties": {
                 "backendPort": 22,
                 "enableFloatingIP": false,
                 "frontendIPConfiguration": {
-                    "id": "[variables('masterLbIPConfigID')]"
+                    "id": "[variables('managerLbIPConfigID')]"
                 },
                 "frontendPort": "[copyIndex(22)]",
                 "protocol": "tcp"
@@ -587,15 +587,15 @@
         {
             "apiVersion": "[variables('apiVersionDefault')]",
             "dependsOn": [
-                "[variables('masterLbID')]"
+                "[variables('managerLbID')]"
             ],
             "location": "[variables('location')]",
-            "name": "[concat(variables('masterSshPort22InboundNatRuleNamePrefix'), '0')]",
+            "name": "[concat(variables('managerSshPort22InboundNatRuleNamePrefix'), '0')]",
             "properties": {
                 "backendPort": 2222,
                 "enableFloatingIP": false,
                 "frontendIPConfiguration": {
-                    "id": "[variables('masterLbIPConfigID')]"
+                    "id": "[variables('managerLbIPConfigID')]"
                 },
                 "frontendPort": "2222",
                 "protocol": "tcp"
@@ -605,17 +605,17 @@
         {
             "apiVersion": "[variables('apiVersionDefault')]",
             "copy": {
-                "count": "[variables('masterCount')]",
+                "count": "[variables('managerCount')]",
                 "name": "nicLoopNode"
             },
             "dependsOn": [
                 "[variables('vnetID')]",
-                "[variables('masterLbID')]",
-                "[concat(variables('masterSshPort22InboundNatRuleIdPrefix'),'0')]",
-                "[concat(variables('masterSshInboundNatRuleIdPrefix'),copyIndex())]"
+                "[variables('managerLbID')]",
+                "[concat(variables('managerSshPort22InboundNatRuleIdPrefix'),'0')]",
+                "[concat(variables('managerSshInboundNatRuleIdPrefix'),copyIndex())]"
             ],
             "location": "[variables('location')]",
-            "name": "[concat(variables('masterVMNamePrefix'), 'nic-', copyIndex())]",
+            "name": "[concat(variables('managerVMNamePrefix'), 'nic-', copyIndex())]",
             "properties": {
                 "ipConfigurations": [
                     {
@@ -623,14 +623,14 @@
                         "properties": {
                             "loadBalancerBackendAddressPools": [
                                 {
-                                    "id": "[concat(variables('masterLbID'), '/backendAddressPools/', variables('masterLbBackendPoolName'))]"
+                                    "id": "[concat(variables('managerLbID'), '/backendAddressPools/', variables('managerLbBackendPoolName'))]"
                                 }
                             ],
-                            "loadBalancerInboundNatRules": "[variables('masterLbInboundNatRules')[copyIndex()]]",
-                            "privateIPAddress": "[concat(variables('masterFirstAddrPrefix'), copyIndex(int(variables('masterFirstAddrOctet4'))))]",
+                            "loadBalancerInboundNatRules": "[variables('managerLbInboundNatRules')[copyIndex()]]",
+                            "privateIPAddress": "[concat(variables('managerFirstAddrPrefix'), copyIndex(int(variables('managerFirstAddrOctet4'))))]",
                             "privateIPAllocationMethod": "Static",
                             "subnet": {
-                                "id": "[variables('masterVnetSubnetID')]"
+                                "id": "[variables('managerVnetSubnetID')]"
                             }
                         }
                     }
@@ -641,34 +641,34 @@
         {
             "apiVersion": "[variables('apiVersionDefault')]",
             "copy": {
-                "count": "[variables('masterCount')]",
+                "count": "[variables('managerCount')]",
                 "name": "vmLoopNode"
             },
             "dependsOn": [
-                "[concat('Microsoft.Network/networkInterfaces/', variables('masterVMNamePrefix'), 'nic-', copyIndex())]",
-                "[concat('Microsoft.Compute/availabilitySets/',variables('masterAvailabilitySet'))]",
-                "[variables('masterStorageAccountName')]"
+                "[concat('Microsoft.Network/networkInterfaces/', variables('managerVMNamePrefix'), 'nic-', copyIndex())]",
+                "[concat('Microsoft.Compute/availabilitySets/',variables('managerAvailabilitySet'))]",
+                "[variables('managerStorageAccountName')]"
             ],
             "location": "[variables('location')]",
-            "name": "[concat(variables('masterVMNamePrefix'), copyIndex())]",
+            "name": "[concat(variables('managerVMNamePrefix'), copyIndex())]",
             "properties": {
                 "availabilitySet": {
-                    "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('masterAvailabilitySet'))]"
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('managerAvailabilitySet'))]"
                 },
                 "hardwareProfile": {
-                    "vmSize": "[variables('masterVMSize')]"
+                    "vmSize": "[variables('managerVMSize')]"
                 },
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('masterVMNamePrefix'), 'nic-', copyIndex()))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('managerVMNamePrefix'), 'nic-', copyIndex()))]"
                         }
                     ]
                 },
                 "osProfile": {
                     "adminUsername": "[variables('adminUsername')]",
                     "adminPassword": "[variables('adminPassword')]",
-                    "computerName": "[concat(variables('masterVMNamePrefix'), copyIndex())]",
+                    "computerName": "[concat(variables('managerVMNamePrefix'), copyIndex())]",
                     "customData": "[base64('#cloud-config\n\nwrite_files:\n -  encoding: gzip\n    content: !!binary |\n        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\n    path: /opt/azure/containers/configure-swarmmode-cluster.sh\n    permissions: \"0744\"\n\n')]",
                     "linuxConfiguration": {
                         "disablePasswordAuthentication": false
@@ -684,33 +684,33 @@
                     "osDisk": {
                         "caching": "ReadWrite",
                         "createOption": "FromImage",
-                        "name": "[concat(variables('masterVMNamePrefix'), copyIndex(),'-osdisk')]",
+                        "name": "[concat(variables('managerVMNamePrefix'), copyIndex(),'-osdisk')]",
                         "vhd": {
-                            "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('masterStorageAccountName')), variables('apiVersionStorage')).primaryEndpoints.blob, 'vhds/', variables('masterVMNamePrefix'), copyIndex(), '-osdisk.vhd')]"
+                            "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('managerStorageAccountName')), variables('apiVersionStorage')).primaryEndpoints.blob, 'vhds/', variables('managerVMNamePrefix'), copyIndex(), '-osdisk.vhd')]"
                         }
                     }
                 }
             },
             "tags": {
-                "creationSource": "[concat('acsengine-', variables('masterVMNamePrefix'), copyIndex())]"
+                "creationSource": "[concat('acsengine-', variables('managerVMNamePrefix'), copyIndex())]"
             },
             "type": "Microsoft.Compute/virtualMachines"
         },
         {
             "apiVersion": "[variables('apiVersionDefault')]",
             "copy": {
-                "count": "[variables('masterCount')]",
+                "count": "[variables('managerCount')]",
                 "name": "vmLoopNode"
             },
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', concat(variables('masterVMNamePrefix'), copyIndex()))]"
+                "[concat('Microsoft.Compute/virtualMachines/', concat(variables('managerVMNamePrefix'), copyIndex()))]"
             ],
             "location": "[variables('location')]",
-            "name": "[concat(variables('masterVMNamePrefix'), copyIndex(), '/configuremaster')]",
+            "name": "[concat(variables('managerVMNamePrefix'), copyIndex(), '/configuremanager')]",
             "properties": {
                 "publisher": "Microsoft.OSTCExtensions",
                 "settings": {
-                    "commandToExecute": "[variables('masterCustomScript')]",
+                    "commandToExecute": "[variables('managerCustomScript')]",
                     "fileUris": []
                 },
                 "type": "CustomScriptForLinux",
@@ -720,13 +720,13 @@
         }
     ],
     "outputs": {
-        "agentFQDN": {
+        "workerFQDN": {
             "type": "string",
-            "value": "[reference(concat('Microsoft.Network/publicIPAddresses/', variables('agentIPAddressName'))).dnsSettings.fqdn]"
+            "value": "[reference(concat('Microsoft.Network/publicIPAddresses/', variables('workerIPAddressName'))).dnsSettings.fqdn]"
         },
-        "masterFQDN": {
+        "managerFQDN": {
             "type": "string",
-            "value": "[reference(concat('Microsoft.Network/publicIPAddresses/', variables('masterPublicIPAddressName'))).dnsSettings.fqdn]"
+            "value": "[reference(concat('Microsoft.Network/publicIPAddresses/', variables('managerPublicIPAddressName'))).dnsSettings.fqdn]"
         }
     }
 }
