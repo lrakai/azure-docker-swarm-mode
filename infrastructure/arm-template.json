@@ -348,21 +348,21 @@
                         }
                     },
                     {
-                        "name": "LBRule8080",
+                        "name": "LBRule8888",
                         "properties": {
                             "backendAddressPool": {
                                 "id": "[concat(variables('workerLbID'), '/backendAddressPools/', variables('workerLbBackendPoolName'))]"
                             },
-                            "backendPort": 8080,
+                            "backendPort": 8888,
                             "enableFloatingIP": false,
                             "frontendIPConfiguration": {
                                 "id": "[variables('workerLbIPConfigID')]"
                             },
-                            "frontendPort": 8080,
+                            "frontendPort": 8888,
                             "idleTimeoutInMinutes": 5,
                             "loadDistribution": "Default",
                             "probe": {
-                                "id": "[concat(variables('workerLbID'),'/probes/tcp8080Probe')]"
+                                "id": "[concat(variables('workerLbID'),'/probes/tcp8888Probe')]"
                             },
                             "protocol": "tcp"
                         }
@@ -388,11 +388,11 @@
                         }
                     },
                     {
-                        "name": "tcp8080Probe",
+                        "name": "tcp8888Probe",
                         "properties": {
                             "intervalInSeconds": "5",
                             "numberOfProbes": "2",
-                            "port": 8080,
+                            "port": 8888,
                             "protocol": "tcp"
                         }
                     }
@@ -580,6 +580,28 @@
                     "id": "[variables('managerLbIPConfigID')]"
                 },
                 "frontendPort": "[copyIndex(22)]",
+                "protocol": "tcp"
+            },
+            "type": "Microsoft.Network/loadBalancers/inboundNatRules"
+        },
+        {
+            "apiVersion": "[variables('apiVersionDefault')]",
+            "copy": {
+                "count": "[variables('managerCount')]",
+                "name": "managerLbLoopNode"
+            },
+            "dependsOn": [
+                "[variables('managerLbID')]"
+            ],
+            "location": "[variables('location')]",
+            "name": "[concat(variables('managerLbName'), '/', 'VIZ-', variables('managerVMNamePrefix'), copyIndex())]",
+            "properties": {
+                "backendPort": 8080,
+                "enableFloatingIP": false,
+                "frontendIPConfiguration": {
+                    "id": "[variables('managerLbIPConfigID')]"
+                },
+                "frontendPort": "[copyIndex(8080)]",
                 "protocol": "tcp"
             },
             "type": "Microsoft.Network/loadBalancers/inboundNatRules"
